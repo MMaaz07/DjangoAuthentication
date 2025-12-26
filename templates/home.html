@@ -47,20 +47,48 @@
 
 <body>
 
-    <nav>
-        <div class="logo">Student Portal</div>
-        <div class="links">
-            <a href="/">Home</a>
-            <a href="#">Profile</a>
-            <a href="/logout/">Logout</a>
-        </div>
-    </nav>
-
-    <div class="container">
-        <h1>Welcome, {{ request.user.username }} 👋</h1>
-        <p>This is your student dashboard.</p>
-        <p>Use the navigation bar to explore your account.</p>
+<nav>
+    <div class="logo">Student Portal</div>
+    <div class="links">
+        <a href="/home/">Home</a>
+        <a href="#">Profile</a>
+        <a href="#" onclick="logoutUser(this)">Logout</a>
     </div>
+</nav>
+
+<div class="container">
+    <h1 id="welcome">Welcome 👋</h1>
+    <p>This is your student dashboard.</p>
+    <p>Use the navigation bar to explore your account.</p>
+</div>
+
+<script>
+/* Protects page */
+if (!localStorage.getItem("access")) {
+    window.location.href = "/login/";
+}
+
+/* Logout only on click */
+function logoutUser(btn) {
+    btn.onclick = null; // prevent second click
+
+    fetch("/api/auth/logout/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("access")
+        },
+        body: JSON.stringify({
+            refresh: localStorage.getItem("refresh")
+        })
+    })
+    .finally(() => {
+        localStorage.clear();
+        window.location.href = "/login/";
+    });
+}
+
+</script>
 
 </body>
 </html>

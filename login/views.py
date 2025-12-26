@@ -54,25 +54,24 @@ def login_view(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
+    refresh_token = request.data.get('refresh')
+
+    if not refresh_token:
+        return Response(
+            {'message': 'Already logged out'},
+            status=status.HTTP_200_OK
+        )
+
     try:
-        refresh_token=request.data.get('refresh')
-
-        if not refresh_token:
-            return Response(
-                {'error':'Refresh token not given, required!'},
-                 status=status.HTTP_400_BAD_REQUEST)
-        token=RefreshToken(refresh_token)
+        token = RefreshToken(refresh_token)
         token.blacklist()
-
-        return Response(
-            {'message':'logout Successfull'},
-            status=status.HTTP_205_RESET_CONTENT
-        )
     except Exception:
-        return Response(
-            {"error":"Invalid Token"},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        pass  # token already invalid or blacklisted
+
+    return Response(
+        {'message': 'Logout successful'},
+        status=status.HTTP_205_RESET_CONTENT
+    )
 
     
         

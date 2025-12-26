@@ -2,23 +2,54 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Login</title>
 </head>
 <body>
-    <h1>LogIn</h1>
-    <form action="" method="post">
-        {% csrf_token %}
-        <label for="">Username:</label>
-        <input type="text" name="username" required><br><br>
-        <label for="">Password:</label>
-        <input type="password" name="password" required><br><br>
 
-        <button type="submit">Login</button>
-        <p>Don't have an account ? <a href="/register">Create One</a> </p>
-    </form>
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
+<h1>Login</h1>
+
+<form onsubmit="loginUser(event)">
+    {% csrf_token %}
+
+    <label>Username:</label>
+    <input type="text" id="username" required><br><br>
+
+    <label>Password:</label>
+    <input type="password" id="password" required><br><br>
+
+    <button type="submit">Login</button>
+
+    <p>Don't have an account?
+        <a href="/register/">Create One</a>
+    </p>
+</form>
+
+<script>
+function loginUser(event) {
+  event.preventDefault(); // stops /login POST
+
+  fetch("/api/auth/login/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      username: document.getElementById("username").value,
+      password: document.getElementById("password").value
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.access) {
+      localStorage.setItem("access", data.access);
+      localStorage.setItem("refresh", data.refresh);
+      window.location.href = "/home/";
+    } else {
+      alert("Invalid credentials");
+    }
+  });
+}
+</script>
+
 </body>
 </html>
